@@ -1,35 +1,21 @@
-use std::{option, string};
-use serde_json::{Result, Value};
-use super::Decoder;
+use core::result;
+use serde_json;
+use std::string;
 
-type Decoder<T> = fn(string::String) -> option::Option<T>;
+pub type Number = serde_json::Number;
+pub type Decoder<T> = fn(string::String) -> serde_json::Result<T>;
 
-pub fn decode_string<T>(
-    json: string::String,
-    decoder: Decoder<T>,
-) -> option::Option<T> {
-    let func = decoder.func;
+pub fn decode_string<T>(json: string::String, decoder: Decoder<T>) -> serde_json::Result<T> {
+    let func = decoder;
     func(json)
 }
 
-pub const Str: Decoder<string::String> = |data: string::String| {    
-    let v: Value = serde_json::from_str(data);
-    match v {
-        Value::String(s) => option::Option::Some(s.to_str()),
-        _ => option::Option::None,
-    }
-};
+pub const Str: Decoder<string::String> =
+    |data: string::String| serde_json::from_str::<string::String>(data.as_str());
 
-const Num: Decoder<Number> = |data: string::String| {
-    let v: Value = serde_json::from_str(data);
-    match v {
-        Value::Number(n) => std::option::Option::Some(n),
-        _ => std::option::Option::None,
-    }
-};
+pub const Num: Decoder<Number> =
+    |data: string::String| serde_json::from_str::<serde_json::Number>(data.as_str());
 
-fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Decoder<T> {
-    |s: string::String| {
-        option::None
-    }
+pub fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Decoder<T> {
+    |s: string::String| result::Result::Err("not yet implemented")
 }
