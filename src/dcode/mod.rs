@@ -1,6 +1,6 @@
 use core::result;
 use serde_json;
-use std::string;
+use std::{boxed, string};
 
 pub type Number = serde_json::Number;
 pub type Decoder<T> = fn(string::String) -> serde_json::Result<T>;
@@ -16,14 +16,14 @@ pub const Str: Decoder<string::String> =
 pub const Num: Decoder<Number> =
     |data: string::String| serde_json::from_str::<serde_json::Number>(data.as_str());
 
-pub fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Decoder<T> {
-    let ret = |json: string::String| {
+pub fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Box<Decoder<T>> {
+    boxed::Box::new(move |json: string::String| {
         let func = dcoder;
         let res = func(json);
-        let matched = match res {
-            result::Result::Ok(ret) => ret,
-            result::Result::Err(e) => func(json),
-        };
-    };
-    ret
+        res
+        // let matched = match res {
+        //     result::Result::Ok(ret) => ret,
+        //     result::Result::Err(e) => func(json),
+        // };
+    })
 }
