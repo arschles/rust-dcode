@@ -17,5 +17,13 @@ pub const Num: Decoder<Number> =
     |data: string::String| serde_json::from_str::<serde_json::Number>(data.as_str());
 
 pub fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Decoder<T> {
-    |s: string::String| result::Result::Err("not yet implemented")
+    let ret = |json: string::String| {
+        let func = dcoder;
+        let res = func(json);
+        let matched = match res {
+            result::Result::Ok(ret) => ret,
+            result::Result::Err(e) => func(json),
+        };
+    };
+    ret
 }
