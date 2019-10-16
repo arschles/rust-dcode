@@ -16,14 +16,22 @@ pub const Str: Decoder<string::String> =
 pub const Num: Decoder<Number> =
     |data: string::String| serde_json::from_str::<serde_json::Number>(data.as_str());
 
-pub fn Field<T>(name: string::String, dcoder: Decoder<T>) -> Box<Decoder<T>> {
-    boxed::Box::new(move |json: string::String| {
+pub fn Field<'a, T>(name: string::String, dcoder: Decoder<T>) -> Decoder<T> {
+    //Box<Decoder<T>> {
+    let f = move |json| {
         let func = dcoder;
         let res = func(json);
         res
-        // let matched = match res {
-        //     result::Result::Ok(ret) => ret,
-        //     result::Result::Err(e) => func(json),
-        // };
-    })
+    };
+    f
+    // boxed::Box::new(f)
+    // boxed::Box::new(move |json: string::String| {
+    //     let func = dcoder;
+    //     let res = func(json);
+    //     res
+    //     let matched = match res {
+    //         result::Result::Ok(ret) => ret,
+    //         result::Result::Err(e) => func(json),
+    //     };
+    // })
 }
